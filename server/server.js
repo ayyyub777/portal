@@ -25,5 +25,5 @@ app.use(errorHandler);
 
 mongoose.connection.once("open", () => {
   console.log("Connected to mongoDB");
-  app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+  app.listen(port, () => console.log(`Listening on port ${port}!`));
 });
