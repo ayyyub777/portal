@@ -1,10 +1,10 @@
-import { Box, Button, Typography } from "@mui/material";
-import { useLogoutMutation } from "../slices/authSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { clearUserInfo } from "../slices/userInfoSlice";
 
-const Dashboard = () => {
+import { clearUserInfo } from "../slices/userInfoSlice";
+import { useLogoutMutation } from "../slices/authSlice";
+import { useNavigate } from "react-router-dom";
+
+const Chat = () => {
   const [logout, { isLoading }] = useLogoutMutation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -23,19 +23,12 @@ const Dashboard = () => {
   };
   return (
     <>
-      <Typography variant="h3">{`Hello ${userInfo.name}!`}</Typography>
-      <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-        <Button
-          type="submit"
-          fullWidth
-          variant="contained"
-          sx={{ mt: 3, mb: 2 }}
-        >
-          {isLoading ? "spinner" : "Sign out"}
-        </Button>
-      </Box>
+      <h1>{`Hello ${userInfo.name}!`}</h1>
+      <button type="submit" onClick={handleSubmit}>
+        {isLoading ? "spinner" : "Sign out"}
+      </button>
     </>
   );
 };
 
-export default Dashboard;
+export default Chat;
