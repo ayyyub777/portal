@@ -21,7 +21,7 @@ const SignUp = () => {
       }).unwrap();
 
       dispatch(setUserInfo({ ...res }));
-      navigate("/chat");
+      navigate("/");
     } catch (err) {
       console.log(err?.data?.message || err.error);
     }
