@@ -8,6 +8,8 @@ const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const corsOptions = require("./config/corsOptions");
+const ws = require("ws");
+const jwt = require("jsonwebtoken");
 
 dbConn();
 app.use(cors(corsOptions));
@@ -23,7 +25,46 @@ app.use("/api", require("./routes/userRoutes"));
 app.use(notFound);
 app.use(errorHandler);
 
-mongoose.connection.once("open", () => {
-  console.log("Connected to mongoDB");
-  app.listen(port, () => console.log(`Listening on port ${port}!`));
+const server = app.listen(5500);
+
+const wss = new ws.WebSocketServer({ server });
+wss.on("connection", (connection, req) => {
+  const cookies = req.headers.cookie;
+  if (cookies) {
+    const tokenCookieString = cookies
+      .split(";")
+      .find((str) => str.startsWith("jwt="));
+    if (tokenCookieString) {
+      const token = tokenCookieString.split("=")[1];
+      if (token) {
+        jwt.verify(token, process.env.SECRET_KEY, {}, (err, userData) => {
+          if (err) throw err;
+          const { userId, name } = userData;
+          connection.userId = userId;
+          connection.name = name;
+        });
+      }
+    }
+  }
+
+  connection.on("message", (message) => {
+    const messageData = JSON.parse(message.toString());
+    const { recipient, text } = messageData;
+    if (recipient && text) {
+      [...wss.clients]
+        .filter((client) => client.userId === recipient)
+        .forEach((client) => client.send(JSON.stringify(text)));
+    }
+  });
+
+  [...wss.clients].forEach((client) => {
+    client.send(
+      JSON.stringify({
+        online: [...wss.clients].map((client) => ({
+          userId: client.userId,
+          name: client.name,
+        })),
+      })
+    );
+  });
 });
