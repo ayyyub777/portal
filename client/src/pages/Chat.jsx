@@ -29,7 +29,7 @@ const Chat = () => {
     if (message && typeof message === "object" && "online" in message) {
       showOnlineUsers(message.online);
     } else {
-      setSentMessage((prev) => [...prev, { text: message, moi: false }]);
+      setSentMessage((prev) => [...prev, { text: message.text, moi: false }]);
     }
   }
 
