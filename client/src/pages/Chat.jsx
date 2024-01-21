@@ -20,10 +20,7 @@ const Chat = () => {
   const autoScroll = useRef();
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:5500", "echo-protocol");
-
-    setWs(ws);
-    ws.addEventListener("message", handleMessage);
+    connectToWS();
   }, []);
 
   useEffect(() => {
@@ -45,6 +42,13 @@ const Chat = () => {
       });
     }
   }, [selecteduser]);
+
+  function connectToWS() {
+    const ws = new WebSocket("ws://localhost:5500", "echo-protocol");
+    setWs(ws);
+    ws.addEventListener("message", handleMessage);
+    ws.addEventListener("close", connectToWS);
+  }
 
   function handleMessage(e) {
     const message = JSON.parse(e.data);
