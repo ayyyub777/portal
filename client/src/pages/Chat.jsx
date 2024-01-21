@@ -13,7 +13,7 @@ const Chat = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [ws, setWs] = useState(null);
-  const [onlineUsers, setOnlineUsers] = useState({});
+  const [users, setUsers] = useState([]);
   const [selecteduser, setSelectedUser] = useState();
   const [newMessage, setNewMessage] = useState("");
   const [sentMessage, setSentMessage] = useState([]);
@@ -53,20 +53,41 @@ const Chat = () => {
   function handleMessage(e) {
     const message = JSON.parse(e.data);
     if (message && typeof message === "object" && "online" in message) {
-      showOnlineUsers(message.online);
+      showUsers(message.online);
     } else {
       setSentMessage((prev) => [...prev, { text: message.text, moi: false }]);
     }
   }
 
-  function showOnlineUsers(data) {
-    const users = {};
-    data.forEach(({ userId, name }) => {
-      users[userId] = name;
+  async function showUsers(data) {
+    const allUsers = {};
+    await axios.get("/api/users/").then((res) => {
+      res.data.users.map((user) => (allUsers[user._id] = user));
     });
-    delete users[userInfo._id];
 
-    setOnlineUsers(users);
+    const activeUsers = {};
+    data.forEach(({ userId, name }) => {
+      activeUsers[userId] = name;
+    });
+    delete activeUsers[userInfo._id];
+
+    const users = [];
+
+    Object.keys(allUsers).forEach((userId) =>
+      activeUsers[userId]
+        ? users.push({
+            id: userId,
+            name: allUsers[userId].name,
+            active: true,
+          })
+        : users.push({
+            id: userId,
+            name: allUsers[userId].name,
+            active: false,
+          })
+    );
+
+    setUsers(users);
   }
 
   function sendMessage(e) {
@@ -101,17 +122,23 @@ const Chat = () => {
             <div className="flex items-center gap-x-3">
               <div className="relative inline-block">
                 <span className="inline-flex items-center justify-center h-[2.375rem] w-[2.375rem] rounded-full bg-gray-300 font-semibold text-white leading-none">
-                  {getInitials(onlineUsers[selecteduser])}
+                  {getInitials(
+                    users.find((user) => user.id === selecteduser).name
+                  )}
                 </span>
-                <span className="absolute bottom-0 end-0 block h-2 w-2 rounded-full ring-2 ring-white bg-green-500"></span>
+                {users.find((user) => user.id === selecteduser).active && (
+                  <span className="absolute bottom-0 end-0 block h-2 w-2 rounded-full ring-2 ring-white bg-green-500"></span>
+                )}
               </div>
 
               <div className="grow">
                 <span className="block font-medium text-gray-600">
-                  {onlineUsers[selecteduser]}
+                  {users.find((user) => user.id === selecteduser).name}
                 </span>
                 <span className="block text-sm text-gray-400">
-                  {selecteduser in onlineUsers ? "Active now" : "Offline"}
+                  {users.find((user) => user.id === selecteduser).active
+                    ? "Active now"
+                    : "Offline"}
                 </span>
               </div>
             </div>
@@ -125,28 +152,27 @@ const Chat = () => {
         >
           <div className="h-full ">
             <ul className="space-y-1.5 p-4 ">
-              {Object.keys(onlineUsers).map((userId) => (
+              {users.map((user) => (
                 <li
-                  key={userId}
-                  onClick={() => setSelectedUser(userId)}
+                  key={user.id}
+                  onClick={() => setSelectedUser(user.id)}
                   className={`cursor-pointer ${
-                    userId === selecteduser ? "bg-gray-100" : ""
+                    user.id === selecteduser ? "bg-gray-100" : ""
                   }`}
                 >
                   <div className="ps-6 lg:ps-3 pe-6 py-3 px-2">
                     <div className="flex items-center gap-x-3">
                       <div className="relative inline-block">
                         <span className="inline-flex items-center justify-center h-[2.875rem] w-[2.875rem] rounded-full bg-gray-300 font-semibold text-white leading-none">
-                          {getInitials(onlineUsers[userId])}
+                          {getInitials(user.name)}
                         </span>
-                        <span className="absolute bottom-0 end-0 block h-3 w-3 rounded-full ring-2 ring-white bg-green-500"></span>
+                        {user.active && (
+                          <span className="absolute bottom-0 end-0 block h-3 w-3 rounded-full ring-2 ring-white bg-green-500"></span>
+                        )}
                       </div>
                       <div className="grow">
                         <span className="block text-sm font-medium text-gray-600">
-                          {onlineUsers[userId]}
-                        </span>
-                        <span className="block text-sm text-gray-400">
-                          what is preline ui?
+                          {user.name}
                         </span>
                       </div>
                     </div>
@@ -160,8 +186,9 @@ const Chat = () => {
               <p className="inline-flex items-center gap-x-2 text-xs text-green-600">
                 <span className="block w-1.5 h-1.5 rounded-full bg-green-600" />
                 {`${
-                  Object.keys(onlineUsers).length
-                    ? Object.keys(onlineUsers).length + " Active users"
+                  users.filter((user) => user.active).length
+                    ? users.filter((user) => user.active).length +
+                      " Active users"
                     : "No Active users"
                 }`}
               </p>
@@ -225,7 +252,9 @@ const Chat = () => {
                   >
                     <span className="flex-shrink-0 inline-flex items-center justify-center h-8 w-8 rounded-full bg-gray-300">
                       <span className="text-sm font-medium text-white leading-none">
-                        {getInitials(onlineUsers[selecteduser])}
+                        {getInitials(
+                          users.find((user) => user.id === selecteduser).name
+                        )}
                       </span>
                     </span>
                     <div className="bg-white border border-gray-200 rounded px-3 py-2 space-y-3 ">

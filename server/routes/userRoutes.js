@@ -6,6 +6,7 @@ const {
   logout,
   getProfile,
   updateProfile,
+  getUsers,
 } = require("../controllers/userController");
 const auth = require("../middleware/auth");
 
@@ -15,5 +16,6 @@ router.post("/logout", logout);
 
 // Protected Routes
 router.route("/profile").get(auth, getProfile).put(auth, updateProfile);
+router.route("/users").get(auth, getUsers);
 
 module.exports = router;

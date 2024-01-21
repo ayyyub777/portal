@@ -2,6 +2,14 @@ const asyncHandler = require("express-async-handler");
 const User = require("../model/User");
 const generateToken = require("../utils/generateToken");
 
+const getUsers = asyncHandler(async (req, res) => {
+  const users = await User.find();
+
+  res.status(200).json({
+    users,
+  });
+});
+
 const register = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
   if (!name && !email && !password) {
@@ -110,4 +118,5 @@ module.exports = {
   logout,
   getProfile,
   updateProfile,
+  getUsers,
 };
