@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
+import axios from "axios";
 import { clearUserInfo } from "../slices/userInfoSlice";
 import { getInitials } from "../../utils/formatter";
 import { useLogoutMutation } from "../slices/authSlice";
@@ -16,6 +17,7 @@ const Chat = () => {
   const [selecteduser, setSelectedUser] = useState();
   const [newMessage, setNewMessage] = useState("");
   const [sentMessage, setSentMessage] = useState([]);
+  const autoScroll = useRef();
 
   useEffect(() => {
     const ws = new WebSocket("ws://localhost:5500", "echo-protocol");
@@ -23,6 +25,26 @@ const Chat = () => {
     setWs(ws);
     ws.addEventListener("message", handleMessage);
   }, []);
+
+  useEffect(() => {
+    const div = autoScroll.current;
+    if (div) {
+      div.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+  }, [sentMessage]);
+
+  useEffect(() => {
+    if (selecteduser) {
+      axios.get("/api/messages/" + selecteduser).then((res) => {
+        res.data.map((message) =>
+          message.sender === selecteduser
+            ? (message.moi = false)
+            : (message.moi = true)
+        );
+        setSentMessage(res.data);
+      });
+    }
+  }, [selecteduser]);
 
   function handleMessage(e) {
     const message = JSON.parse(e.data);
@@ -45,7 +67,7 @@ const Chat = () => {
 
   function sendMessage(e) {
     e.preventDefault();
-    if (!newMessage) return;
+    if (!newMessage || newMessage === " ") return;
     ws.send(
       JSON.stringify({
         recipient: selecteduser,
@@ -177,7 +199,7 @@ const Chat = () => {
         </div>
       ) : (
         <div className="relative w-full lg:ps-80 bg-gray-50">
-          <div className="overflow-y-scroll px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto h-[calc(100vh-93.6667px-72.8333px)]">
+          <div className="overflow-y-scroll px-4 pt-10 sm:px-6 lg:px-8 lg:pt-14 mx-auto h-[calc(100vh-93.6667px-72.8333px)]">
             <ul className="space-y-5">
               {sentMessage.map((message, index) =>
                 message.moi ? (
@@ -209,6 +231,7 @@ const Chat = () => {
                   </li>
                 )
               )}
+              <div ref={autoScroll}></div>
             </ul>
           </div>
           <footer className="mx-auto sticky bottom-0 z-10 bg-gray-50 pt-2 pb-4 sm:pt-4 sm:pb-6 px-4 sm:px-6 lg:px-0">

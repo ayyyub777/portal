@@ -22,6 +22,7 @@ app.use(cookieParser());
 app.get("/", (req, res) => res.send("Hello World!"));
 
 app.use("/api", require("./routes/userRoutes"));
+app.use("/api", require("./routes/messageRoutes"));
 
 app.use(notFound);
 app.use(errorHandler);
