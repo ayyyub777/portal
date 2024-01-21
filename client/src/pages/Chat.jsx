@@ -96,13 +96,12 @@ const Chat = () => {
             <div className="me-5 lg:me-0 lg:hidden">toggle</div>
             <div className="flex items-center gap-x-3">
               <div className="relative inline-block">
-                <img
-                  className="inline-block h-[2.375rem] w-[2.375rem] rounded-full"
-                  src="https://images.unsplash.com/photo-1568602471122-7832951cc4c5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=facearea&facepad=2&w=300&h=300&q=80"
-                  alt="Image Description"
-                />
+                <span className="inline-flex items-center justify-center h-[2.375rem] w-[2.375rem] rounded-full bg-gray-300 font-semibold text-white leading-none">
+                  {getInitials(onlineUsers[selecteduser])}
+                </span>
                 <span className="absolute bottom-0 end-0 block h-2 w-2 rounded-full ring-2 ring-white bg-green-500"></span>
               </div>
+
               <div className="grow">
                 <span className="block font-medium text-gray-600">
                   {onlineUsers[selecteduser]}
@@ -205,7 +204,7 @@ const Chat = () => {
                 message.moi ? (
                   <li key={index} className="flex ms-auto gap-x-2 sm:gap-x-4">
                     <div className="grow text-end space-y-3">
-                      <div className="inline-block bg-blue-600 rounded p-3 shadow-sm">
+                      <div className="inline-block bg-blue-600 rounded px-3 py-2 shadow-sm">
                         <p className="text-sm text-white">{message.text}</p>
                       </div>
                     </div>
@@ -225,7 +224,7 @@ const Chat = () => {
                         {getInitials(onlineUsers[selecteduser])}
                       </span>
                     </span>
-                    <div className="bg-white border border-gray-200 rounded p-3 space-y-3 ">
+                    <div className="bg-white border border-gray-200 rounded px-3 py-2 space-y-3 ">
                       <p className="text-sm text-gray-800 ">{message.text}</p>
                     </div>
                   </li>
