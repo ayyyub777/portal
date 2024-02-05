@@ -69,6 +69,12 @@ git clone https://github.com/ayyyub777/chat-application.git
 Install the project dependencies using npm
 
 ```bash
+cd client
+npm install
+```
+
+```bash
+cd ..
 npm install
 ```
 
