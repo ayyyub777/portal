@@ -166,7 +166,3 @@ Open [http://localhost:3000](http://localhost:3000) in your browser to view the 
 ## Meta
 
 Ayoub Bigharassine – [LinkedIn](https://www.linkedin.com/in/ayoub-bigharassine/) – ayoub.bigharassine@gmail.com
-
-Distributed under the XYZ license. See `LICENSE` for more information.
-
-[https://github.com/ayyyub777/chat-application](https://github.com/ayyyub777/chat-application)
